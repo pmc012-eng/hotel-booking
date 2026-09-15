@@ -1,0 +1,41 @@
+# ==========================================
+# GITIGNORE CHO DỰ ÁN HOTEL BOOKING
+# ==========================================
+
+# 1. Node.js & Backend
+backend/node_modules/
+backend/.env
+backend/*.log
+backend/npm-debug.log*
+
+# 2. Flutter & Dart
+hotel_booking_app/.dart_tool/
+hotel_booking_app/.flutter-plugins
+hotel_booking_app/.flutter-plugins-dependencies
+hotel_booking_app/.pub-cache/
+hotel_booking_app/.pub/
+hotel_booking_app/build/
+hotel_booking_app/.metadata
+hotel_booking_app/*.iml
+hotel_booking_app/.idea/
+
+# 3. Android build files
+hotel_booking_app/android/.gradle/
+hotel_booking_app/android/local.properties
+hotel_booking_app/android/app/build/
+hotel_booking_app/android/captures/
+
+# 4. Windows / Desktop Flutter build
+hotel_booking_app/windows/flutter/ephemeral/
+
+# 5. OS & IDE artifacts
+.DS_Store
+Thumbs.db
+*.swp
+*.log
+.vscode/
+.idea/
+
+# 6. File cài đặt lớn (Khuyên dùng GitHub Releases thay vì commit vào git)
+*.apk
+*.aab
