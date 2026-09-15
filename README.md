@@ -1,14 +1,14 @@
-<<<<<<< HEAD
+
 # hotel-booking
 Ứng dụng đặt phòng khách sạn trực tuyến (Flutter + Node.js Express + MySQL)
 =======
-# 🏨 Hotel Booking System (Full-Stack Mobile App & Management)
+#  Hotel Booking System (Full-Stack Mobile App & Management)
 
 Dự án đồ án học kỳ xây dựng Hệ thống Đặt phòng Khách sạn trực tuyến hoàn chỉnh từ Backend REST API đến Ứng dụng di động Flutter.
 
 ---
 
-## 🌟 Tính Năng Nổi Bật
+##  Tính Năng Nổi Bật
 
 * **Phía Khách Hàng (Mobile App):**
   * Đăng ký, đăng nhập bảo mật bằng JWT & BCrypt.
@@ -29,7 +29,7 @@ Dự án đồ án học kỳ xây dựng Hệ thống Đặt phòng Khách sạ
 
 ---
 
-## 🛠️ Công Nghệ Sử Dụng
+##  Công Nghệ Sử Dụng
 
 * **Frontend (Mobile App):**
   * **Flutter SDK** (Dart 3.6+)
@@ -46,7 +46,7 @@ Dự án đồ án học kỳ xây dựng Hệ thống Đặt phòng Khách sạ
 
 ---
 
-## 🚀 Hướng Dẫn Cài Đặt & Chạy Ứng Dụng
+##  Hướng Dẫn Cài Đặt & Chạy Ứng Dụng
 
 ### 1. Chuẩn bị Cơ sở dữ liệu MySQL
 1. Khởi động MySQL / MariaDB (ví dụ qua XAMPP Control Panel cổng 3306).
@@ -102,7 +102,7 @@ flutter run
 
 ---
 
-## 🔑 Tài Khoản Thử Nghiệm
+##  Tài Khoản Thử Nghiệm
 
 | Vai trò | Email | Mật khẩu | Chức năng nổi bật |
 | :--- | :--- | :--- | :--- |
@@ -112,7 +112,7 @@ flutter run
 
 ---
 
-## 📁 Cấu Trúc Thư Mục Dự Án
+##  Cấu Trúc Thư Mục Dự Án
 
 ```
 hotel-android/
