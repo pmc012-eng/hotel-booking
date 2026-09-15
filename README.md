@@ -136,9 +136,4 @@ hotel-android/
     └── test/                   # Flutter Unit & Widget tests
 ```
 
----
-
-## 📜 Tài Liệu Báo Cáo Chi Tiết
-Xem toàn bộ báo cáo phân tích thiết kế hệ thống, sơ đồ quan hệ thực thể (ERD), giải thuật chống trùng lịch, đặc tả 19 APIs và **Cẩm nang 15 câu hỏi vấn đáp bảo vệ đồ án** tại:
-👉 [**BAO_CAO_DO_AN.md**](./BAO_CAO_DO_AN.md)
 >>>>>>> ed2895b (feat: initial commit for Hotel Booking System (Flutter Mobile + Node.js Backend))

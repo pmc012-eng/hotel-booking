@@ -36,6 +36,6 @@ Thumbs.db
 .vscode/
 .idea/
 
-# 6. File cài đặt lớn (Khuyên dùng GitHub Releases thay vì commit vào git)
+# 6. File cài đặt lớn 
 *.apk
 *.aab
