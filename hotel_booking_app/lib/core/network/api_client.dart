@@ -27,6 +27,9 @@ class ApiClient {
           if (token != null && token.isNotEmpty) {
             options.headers['Authorization'] = 'Bearer $token';
           }
+          if (options.data is FormData) {
+            options.headers.remove('Content-Type');
+          }
           return handler.next(options);
         },
         onResponse: (response, handler) {

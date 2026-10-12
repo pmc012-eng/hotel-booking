@@ -8,7 +8,8 @@ class AppConstants {
   /// - Chạy trên ĐIỆN THOẠI THẬT (chung Wi-Fi): Để IP Wi-Fi máy tính (192.168.88.176)
   /// - Chạy trên MÁY ẢO Android Studio: Dùng 192.168.88.176 hoặc 10.0.2.2
   /// - Chạy trên Web / Windows: Tự động kết nối localhost
-  static String serverHost = '192.168.88.176';
+  static const String defaultServerHost = '192.168.88.176';
+  static String serverHost = defaultServerHost;
 
   static String get baseUrl {
     if (kIsWeb) {

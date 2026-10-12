@@ -1,3 +1,5 @@
+import '../core/constants/app_constants.dart';
+
 class UserModel {
   final int id;
   final String name;
@@ -18,6 +20,17 @@ class UserModel {
   });
 
   bool get isAdmin => role == 'ADMIN';
+
+  /// Trả về URL ảnh đại diện đầy đủ (hỗ trợ cả link ngoài và link static backend)
+  String? get fullAvatarUrl {
+    if (avatar == null || avatar!.trim().isEmpty) return null;
+    final trimmed = avatar!.trim();
+    if (trimmed.startsWith('http://') || trimmed.startsWith('https://')) {
+      return trimmed;
+    }
+    final path = trimmed.startsWith('/') ? trimmed : '/$trimmed';
+    return '${AppConstants.imageBaseUrl}$path';
+  }
 
   factory UserModel.fromJson(Map<String, dynamic> json) {
     return UserModel(

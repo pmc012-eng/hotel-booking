@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_riverpod/legacy.dart';
 import '../core/network/api_exception.dart';
@@ -184,6 +185,22 @@ class AdminActionNotifier extends StateNotifier<AdminActionState> {
     } catch (_) {
       state = state.copyWith(isLoading: false, errorMessage: 'Cập nhật trạng thái phòng thất bại!');
       return false;
+    }
+  }
+
+  /// Tải lên ảnh từ điện thoại
+  Future<String?> uploadImage(File imageFile, {String type = 'general'}) async {
+    state = state.copyWith(isLoading: true, clearError: true);
+    try {
+      final url = await _repo.uploadImage(imageFile, type: type);
+      state = state.copyWith(isLoading: false);
+      return url;
+    } on ApiException catch (e) {
+      state = state.copyWith(isLoading: false, errorMessage: e.message);
+      return null;
+    } catch (_) {
+      state = state.copyWith(isLoading: false, errorMessage: 'Tải ảnh lên thất bại!');
+      return null;
     }
   }
 }

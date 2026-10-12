@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import '../../core/constants/app_colors.dart';
 import '../../core/utils/currency_formatter.dart';
 import '../../models/hotel_model.dart';
@@ -149,7 +150,13 @@ class _AdminRoomManageScreenState extends ConsumerState<AdminRoomManageScreen> {
         title: const Text('Quản Lý Phòng Khách Sạn'),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back_ios_new, size: 18),
-          onPressed: () => context.pop(),
+          onPressed: () {
+            if (context.canPop()) {
+              context.pop();
+            } else {
+              context.go('/admin');
+            }
+          },
         ),
         actions: [
           IconButton(
@@ -253,21 +260,36 @@ class _AdminRoomManageScreenState extends ConsumerState<AdminRoomManageScreen> {
                                 ),
                                 child: Row(
                                   children: [
-                                    Container(
-                                      width: 48,
-                                      height: 48,
-                                      decoration: BoxDecoration(
-                                        color: isAvailable ? AppColors.primaryContainer : AppColors.warningContainer,
-                                        borderRadius: BorderRadius.circular(12),
-                                      ),
-                                      child: Center(
-                                        child: Text(
-                                          room.roomNumber,
-                                          style: TextStyle(
-                                            fontWeight: FontWeight.bold,
-                                            fontSize: 16,
-                                            color: isAvailable ? AppColors.primary : AppColors.warning,
-                                          ),
+                                    ClipRRect(
+                                      borderRadius: BorderRadius.circular(12),
+                                      child: SizedBox(
+                                        width: 54,
+                                        height: 54,
+                                        child: Stack(
+                                          fit: StackFit.expand,
+                                          children: [
+                                            CachedNetworkImage(
+                                              imageUrl: room.fullImageUrl,
+                                              fit: BoxFit.cover,
+                                              placeholder: (ctx, url) => Container(color: AppColors.border),
+                                              errorWidget: (ctx, url, err) => Container(
+                                                color: isAvailable ? AppColors.primaryContainer : AppColors.warningContainer,
+                                                child: Icon(Icons.meeting_room, color: isAvailable ? AppColors.primary : AppColors.warning),
+                                              ),
+                                            ),
+                                            Container(
+                                              color: Colors.black45,
+                                              alignment: Alignment.center,
+                                              child: Text(
+                                                room.roomNumber,
+                                                style: const TextStyle(
+                                                  fontWeight: FontWeight.bold,
+                                                  fontSize: 14,
+                                                  color: Colors.white,
+                                                ),
+                                              ),
+                                            ),
+                                          ],
                                         ),
                                       ),
                                     ),

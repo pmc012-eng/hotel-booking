@@ -148,10 +148,36 @@ const changePassword = catchAsync(async (req, res, next) => {
   return sendSuccess(res, null, 'Đổi mật khẩu thành công!');
 });
 
+/**
+ * [PUT/POST] /api/auth/avatar - Cập nhật ảnh đại diện người dùng
+ */
+const uploadAvatar = catchAsync(async (req, res, next) => {
+  if (!req.file) {
+    return next(new AppError('Vui lòng chọn tệp ảnh để tải lên làm ảnh đại diện!', 400));
+  }
+
+  // Đường dẫn tương đối phục vụ từ static express
+  const avatarPath = `/uploads/avatars/${req.file.filename}`;
+
+  const updatedUser = await UserModel.updateProfile(req.user.id, {
+    avatar: avatarPath,
+  });
+
+  return sendSuccess(
+    res,
+    {
+      user: updatedUser,
+      avatar: avatarPath,
+    },
+    'Cập nhật ảnh đại diện thành công!'
+  );
+});
+
 module.exports = {
   register,
   login,
   getMe,
   updateProfile,
   changePassword,
+  uploadAvatar,
 };

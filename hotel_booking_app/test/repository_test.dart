@@ -24,6 +24,7 @@ void main() {
       expect(user.name, 'Nguyễn Văn A');
       expect(user.isAdmin, false);
       expect(user.toJson()['email'], 'user1@gmail.com');
+      expect(user.fullAvatarUrl?.contains('/uploads/avatar.jpg'), true);
     });
 
     test('HotelModel parses image URLs and price correctly', () {
@@ -47,7 +48,7 @@ void main() {
       expect(hotel.fullPrimaryImageUrl.contains('/uploads/hotel_1.jpg'), true);
     });
 
-    test('RoomModel parses status and amenities correctly', () {
+    test('RoomModel parses status, amenities and image URL correctly', () {
       final json = {
         'id': 201,
         'hotel_id': 1,
@@ -57,6 +58,7 @@ void main() {
         'room_type_name': 'Deluxe View',
         'capacity': 2,
         'price': 1200000,
+        'image_url': '/uploads/rooms/room_custom.jpg',
         'amenities': ['Wifi', 'Điều hòa', 'TV'],
       };
 
@@ -65,6 +67,7 @@ void main() {
       expect(room.isAvailable, true);
       expect(room.amenities.length, 3);
       expect(room.price, 1200000.0);
+      expect(room.fullImageUrl.contains('/uploads/rooms/room_custom.jpg'), true);
     });
 
     test('BookingModel calculated properties and status work correctly', () {

@@ -21,7 +21,13 @@ class AdminDashboardScreen extends ConsumerWidget {
         title: const Text('Bảng Điều Khiển Quản Trị'),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back_ios_new, size: 18),
-          onPressed: () => context.pop(),
+          onPressed: () {
+            if (context.canPop()) {
+              context.pop();
+            } else {
+              context.go('/main');
+            }
+          },
         ),
         actions: [
           IconButton(

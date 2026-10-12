@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import '../../core/constants/app_colors.dart';
 import '../../models/hotel_model.dart';
 import '../../providers/auth_provider.dart';
@@ -52,7 +53,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     final recommended = widget.recommendedHotels ?? allHotelsAsync.asData?.value ?? _sampleRecommendedHotels;
 
     final displayName = widget.userName ?? user?.name ?? 'Khách du lịch';
-    final displayAvatar = widget.userAvatar ?? user?.avatar;
+    final avatarUrl = user?.fullAvatarUrl ?? widget.userAvatar;
 
     final filteredHotels = _selectedCity == 'Tất cả'
         ? recommended
@@ -80,10 +81,10 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                       CircleAvatar(
                         radius: 22,
                         backgroundColor: AppColors.primaryContainer,
-                        backgroundImage: displayAvatar != null
-                            ? NetworkImage(displayAvatar)
+                        backgroundImage: avatarUrl != null
+                            ? CachedNetworkImageProvider(avatarUrl)
                             : null,
-                        child: displayAvatar == null
+                        child: avatarUrl == null
                             ? const Icon(Icons.person, color: AppColors.primary)
                             : null,
                       ),
@@ -173,7 +174,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
 
                 // Categories Chips (Thành phố du lịch)
                 SizedBox(
-                  height: 38,
+                  height: 44,
                   child: ListView.builder(
                     scrollDirection: Axis.horizontal,
                     padding: const EdgeInsets.symmetric(horizontal: 20),
@@ -231,7 +232,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                 const SizedBox(height: 14),
 
                 SizedBox(
-                  height: 235,
+                  height: 255,
                   child: ListView.builder(
                     scrollDirection: Axis.horizontal,
                     padding: const EdgeInsets.symmetric(horizontal: 20),

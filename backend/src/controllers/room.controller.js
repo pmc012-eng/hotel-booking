@@ -87,7 +87,10 @@ const getRoomById = catchAsync(async (req, res, next) => {
  * [POST] /api/rooms - Thêm phòng mới (ADMIN)
  */
 const createRoom = catchAsync(async (req, res, next) => {
-  let { hotelId, roomTypeId, roomNumber, roomTypeName, price, capacity, status, amenities, imageUrl } = req.body;
+  let { hotelId, roomTypeId, roomNumber, roomTypeName, price, capacity, status, amenities, imageUrl, image } = req.body;
+  if (!imageUrl && image) {
+    imageUrl = image;
+  }
   
   if (!hotelId || !roomNumber) {
     return next(new AppError('Vui lòng cung cấp hotelId và số phòng (roomNumber)!', 400));

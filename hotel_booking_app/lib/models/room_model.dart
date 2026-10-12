@@ -1,3 +1,5 @@
+import '../core/constants/app_constants.dart';
+
 class RoomTypeModel {
   final int id;
   final int hotelId;
@@ -18,6 +20,18 @@ class RoomTypeModel {
     this.imageUrl,
     this.amenities = const [],
   });
+
+  String get fullImageUrl {
+    if (imageUrl == null || imageUrl!.trim().isEmpty) {
+      return 'https://images.unsplash.com/photo-1590490360182-c33d57733427?auto=format&fit=crop&w=800&q=80';
+    }
+    final trimmed = imageUrl!.trim();
+    if (trimmed.startsWith('http://') || trimmed.startsWith('https://')) {
+      return trimmed;
+    }
+    final path = trimmed.startsWith('/') ? trimmed : '/$trimmed';
+    return '${AppConstants.imageBaseUrl}$path';
+  }
 
   factory RoomTypeModel.fromJson(Map<String, dynamic> json) {
     List<String> amenitiesList = [];
@@ -89,6 +103,18 @@ class RoomModel {
   });
 
   bool get isAvailable => status == 'AVAILABLE';
+
+  String get fullImageUrl {
+    if (imageUrl == null || imageUrl!.trim().isEmpty) {
+      return 'https://images.unsplash.com/photo-1590490360182-c33d57733427?auto=format&fit=crop&w=800&q=80';
+    }
+    final trimmed = imageUrl!.trim();
+    if (trimmed.startsWith('http://') || trimmed.startsWith('https://')) {
+      return trimmed;
+    }
+    final path = trimmed.startsWith('/') ? trimmed : '/$trimmed';
+    return '${AppConstants.imageBaseUrl}$path';
+  }
 
   factory RoomModel.fromJson(Map<String, dynamic> json) {
     List<String> amenitiesList = [];

@@ -4,6 +4,7 @@ class ApiEndpoints {
   static const String login = '/auth/login';
   static const String me = '/auth/me';
   static const String updateProfile = '/auth/profile';
+  static const String uploadAvatar = '/auth/avatar';
   static const String changePassword = '/auth/change-password';
 
   // Hotels
@@ -30,4 +31,8 @@ class ApiEndpoints {
   static const String adminUsers = '/admin/users';
   static const String adminBookings = '/admin/bookings';
   static String updateBookingStatus(int id) => '/admin/bookings/$id/status';
+
+  // Upload
+  static const String uploadImage = '/upload';
+  static const String uploadMultipleImages = '/upload/multiple';
 }

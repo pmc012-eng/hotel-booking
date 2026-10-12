@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import '../../core/constants/app_colors.dart';
 import '../home/home_screen.dart';
 import '../explore/explore_screen.dart';
@@ -16,6 +17,7 @@ class MainScreen extends StatefulWidget {
 
 class _MainScreenState extends State<MainScreen> {
   late int _currentIndex;
+  DateTime? _lastBackPressTime;
 
   @override
   void initState() {
@@ -48,54 +50,85 @@ class _MainScreenState extends State<MainScreen> {
       const ProfileScreen(),
     ];
 
-    return Scaffold(
-      body: IndexedStack(
-        index: _currentIndex,
-        children: screens,
-      ),
-      bottomNavigationBar: Container(
-        decoration: const BoxDecoration(
-          color: AppColors.surface,
-          boxShadow: [
-            BoxShadow(
-              color: AppColors.shadow,
-              blurRadius: 16,
-              offset: Offset(0, -2),
+    return PopScope(
+      canPop: false,
+      onPopInvokedWithResult: (bool didPop, dynamic result) {
+        if (didPop) return;
+        if (_currentIndex != 0) {
+          // Quay về Tab Trang chủ trước nếu đang ở Tab khác
+          setState(() {
+            _currentIndex = 0;
+          });
+          return;
+        }
+
+        // Đang ở Tab Trang chủ: bấm 2 lần trong 2 giây để thoát
+        final now = DateTime.now();
+        if (_lastBackPressTime == null ||
+            now.difference(_lastBackPressTime!) > const Duration(seconds: 2)) {
+          _lastBackPressTime = now;
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Nhấn nút quay lại lần nữa để thoát ứng dụng'),
+              duration: Duration(seconds: 2),
+              behavior: SnackBarBehavior.floating,
             ),
-          ],
+          );
+          return;
+        }
+
+        // Thoát ứng dụng an toàn
+        SystemNavigator.pop();
+      },
+      child: Scaffold(
+        body: IndexedStack(
+          index: _currentIndex,
+          children: screens,
         ),
-        child: BottomNavigationBar(
-          currentIndex: _currentIndex,
-          onTap: _onTabTapped,
-          backgroundColor: AppColors.surface,
-          selectedItemColor: AppColors.primary,
-          unselectedItemColor: AppColors.textMuted,
-          selectedLabelStyle: const TextStyle(fontWeight: FontWeight.w600, fontSize: 12),
-          unselectedLabelStyle: const TextStyle(fontWeight: FontWeight.w500, fontSize: 12),
-          type: BottomNavigationBarType.fixed,
-          elevation: 0,
-          items: const [
-            BottomNavigationBarItem(
-              icon: Icon(Icons.home_outlined),
-              activeIcon: Icon(Icons.home_rounded),
-              label: 'Trang chủ',
-            ),
-            BottomNavigationBarItem(
-              icon: Icon(Icons.explore_outlined),
-              activeIcon: Icon(Icons.explore_rounded),
-              label: 'Khám phá',
-            ),
-            BottomNavigationBarItem(
-              icon: Icon(Icons.book_online_outlined),
-              activeIcon: Icon(Icons.book_online_rounded),
-              label: 'Đơn đặt',
-            ),
-            BottomNavigationBarItem(
-              icon: Icon(Icons.person_outline),
-              activeIcon: Icon(Icons.person_rounded),
-              label: 'Hồ sơ',
-            ),
-          ],
+        bottomNavigationBar: Container(
+          decoration: const BoxDecoration(
+            color: AppColors.surface,
+            boxShadow: [
+              BoxShadow(
+                color: AppColors.shadow,
+                blurRadius: 16,
+                offset: Offset(0, -2),
+              ),
+            ],
+          ),
+          child: BottomNavigationBar(
+            currentIndex: _currentIndex,
+            onTap: _onTabTapped,
+            backgroundColor: AppColors.surface,
+            selectedItemColor: AppColors.primary,
+            unselectedItemColor: AppColors.textMuted,
+            selectedLabelStyle: const TextStyle(fontWeight: FontWeight.w600, fontSize: 12),
+            unselectedLabelStyle: const TextStyle(fontWeight: FontWeight.w500, fontSize: 12),
+            type: BottomNavigationBarType.fixed,
+            elevation: 0,
+            items: const [
+              BottomNavigationBarItem(
+                icon: Icon(Icons.home_outlined),
+                activeIcon: Icon(Icons.home_rounded),
+                label: 'Trang chủ',
+              ),
+              BottomNavigationBarItem(
+                icon: Icon(Icons.explore_outlined),
+                activeIcon: Icon(Icons.explore_rounded),
+                label: 'Khám phá',
+              ),
+              BottomNavigationBarItem(
+                icon: Icon(Icons.book_online_outlined),
+                activeIcon: Icon(Icons.book_online_rounded),
+                label: 'Đơn đặt',
+              ),
+              BottomNavigationBarItem(
+                icon: Icon(Icons.person_outline),
+                activeIcon: Icon(Icons.person_rounded),
+                label: 'Hồ sơ',
+              ),
+            ],
+          ),
         ),
       ),
     );

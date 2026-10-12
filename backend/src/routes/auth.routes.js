@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const authController = require('../controllers/auth.controller');
 const { protect } = require('../middlewares/auth.middleware');
+const { uploadAvatar } = require('../middlewares/upload.middleware');
 const {
   validateRequiredFields,
   validateEmail,
@@ -25,6 +26,8 @@ router.post(
 // Protected routes (Yêu cầu đăng nhập - JWT Token)
 router.get('/me', protect, authController.getMe);
 router.put('/profile', protect, authController.updateProfile);
+router.put('/avatar', protect, uploadAvatar.single('avatar'), authController.uploadAvatar);
+router.post('/avatar', protect, uploadAvatar.single('avatar'), authController.uploadAvatar);
 router.put(
   '/change-password',
   protect,

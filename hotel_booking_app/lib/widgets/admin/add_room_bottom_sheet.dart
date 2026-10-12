@@ -1,10 +1,13 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:image_picker/image_picker.dart';
 import '../../core/constants/app_colors.dart';
 import '../../models/hotel_model.dart';
 import '../../providers/admin_provider.dart';
 import '../common/custom_button.dart';
 import '../common/custom_text_field.dart';
+import '../common/image_upload_picker_box.dart';
 
 class AddRoomBottomSheet extends ConsumerStatefulWidget {
   final List<HotelModel> hotels;
@@ -51,6 +54,10 @@ class _AddRoomBottomSheetState extends ConsumerState<AddRoomBottomSheet> {
     'TV thông minh',
   ];
 
+  File? _pickedRoomImage;
+  String? _uploadedImageUrl;
+  bool _isUploadingImage = false;
+
   final List<String> _roomTypeSuggestions = [
     'Phòng Tiêu Chuẩn (Standard)',
     'Deluxe City View',
@@ -85,6 +92,43 @@ class _AddRoomBottomSheetState extends ConsumerState<AddRoomBottomSheet> {
     super.dispose();
   }
 
+  Future<void> _handlePickRoomImage(ImageSource source) async {
+    try {
+      final picker = ImagePicker();
+      final picked = await picker.pickImage(
+        source: source,
+        maxWidth: 1600,
+        maxHeight: 1200,
+        imageQuality: 85,
+      );
+
+      if (picked == null) return;
+
+      final file = File(picked.path);
+      setState(() {
+        _pickedRoomImage = file;
+        _isUploadingImage = true;
+      });
+
+      final uploadedUrl = await ref.read(adminActionProvider.notifier).uploadImage(file, type: 'room');
+      if (mounted) {
+        setState(() {
+          _isUploadingImage = false;
+          if (uploadedUrl != null) {
+            _uploadedImageUrl = uploadedUrl;
+          }
+        });
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() => _isUploadingImage = false);
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Lỗi tải ảnh: ${e.toString()}'), backgroundColor: AppColors.error),
+        );
+      }
+    }
+  }
+
   Future<void> _submit() async {
     if (!_formKey.currentState!.validate()) return;
     if (_hotelId == null) {
@@ -104,6 +148,7 @@ class _AddRoomBottomSheetState extends ConsumerState<AddRoomBottomSheet> {
       'capacity': _capacity,
       'status': _status,
       'amenities': _selectedAmenities,
+      if (_uploadedImageUrl != null) 'imageUrl': _uploadedImageUrl,
     };
 
     final result = await ref.read(adminActionProvider.notifier).createRoom(roomData);
@@ -341,6 +386,22 @@ class _AddRoomBottomSheetState extends ConsumerState<AddRoomBottomSheet> {
                     },
                   );
                 }).toList(),
+              ),
+              const SizedBox(height: 16),
+
+              // 4b. Ảnh phòng chụp từ điện thoại
+              ImageUploadPickerBox(
+                label: 'Ảnh chụp phòng (Tải từ điện thoại)',
+                selectedFile: _pickedRoomImage,
+                imageUrl: _uploadedImageUrl,
+                isLoading: _isUploadingImage,
+                onPickImage: _handlePickRoomImage,
+                onRemove: () {
+                  setState(() {
+                    _pickedRoomImage = null;
+                    _uploadedImageUrl = null;
+                  });
+                },
               ),
               const SizedBox(height: 16),
 

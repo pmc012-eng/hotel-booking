@@ -26,6 +26,7 @@ const hotelRoutes = require('./hotel.routes');
 const roomRoutes = require('./room.routes');
 const bookingRoutes = require('./booking.routes');
 const adminRoutes = require('./admin.routes');
+const uploadRoutes = require('./upload.routes');
 
 // Mount routes
 router.use('/auth', authRoutes);
@@ -33,5 +34,6 @@ router.use('/hotels', hotelRoutes);
 router.use('/rooms', roomRoutes);
 router.use('/bookings', bookingRoutes);
 router.use('/admin', adminRoutes);
+router.use('/upload', uploadRoutes);
 
 module.exports = router;

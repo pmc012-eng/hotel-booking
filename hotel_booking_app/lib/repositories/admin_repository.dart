@@ -1,3 +1,5 @@
+import 'dart:io';
+import 'package:dio/dio.dart';
 import '../core/constants/api_endpoints.dart';
 import '../core/network/api_client.dart';
 import '../models/admin_stats_model.dart';
@@ -96,6 +98,25 @@ class AdminRepository {
   Future<bool> deleteRoom(int id) async {
     await _client.delete(ApiEndpoints.roomDetail(id));
     return true;
+  }
+
+  /// Tải lên ảnh từ điện thoại (hỗ trợ type: hotel, room, general)
+  Future<String> uploadImage(File imageFile, {String type = 'general'}) async {
+    final fileName = imageFile.path.split(Platform.pathSeparator).last;
+    final formData = FormData.fromMap({
+      'image': await MultipartFile.fromFile(
+        imageFile.path,
+        filename: fileName,
+      ),
+    });
+
+    final response = await _client.post(
+      '${ApiEndpoints.uploadImage}?type=$type',
+      data: formData,
+    );
+
+    final data = response.data['data'] as Map<String, dynamic>;
+    return data['url'] as String;
   }
 }
 

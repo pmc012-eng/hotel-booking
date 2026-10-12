@@ -48,7 +48,14 @@ const getHotelById = catchAsync(async (req, res, next) => {
  * [POST] /api/hotels - Tạo khách sạn mới (ADMIN)
  */
 const createHotel = catchAsync(async (req, res, next) => {
-  const { name, description, address, city, star, rating, images, minPrice, min_price } = req.body;
+  const { name, description, address, city, star, rating, images, minPrice, min_price, image, primaryImage } = req.body;
+  
+  let finalImages = images;
+  if (!finalImages || !Array.isArray(finalImages) || finalImages.length === 0) {
+    if (primaryImage) finalImages = [primaryImage];
+    else if (image) finalImages = [image];
+  }
+
   const newHotel = await HotelModel.create({
     name,
     description,
@@ -56,7 +63,7 @@ const createHotel = catchAsync(async (req, res, next) => {
     city,
     star,
     rating,
-    images,
+    images: finalImages,
     minPrice: minPrice ?? min_price ?? 0,
   });
   return sendSuccess(res, newHotel, 'Thêm mới khách sạn thành công!', 201);
@@ -66,8 +73,14 @@ const createHotel = catchAsync(async (req, res, next) => {
  * [PUT] /api/hotels/:id - Cập nhật thông tin khách sạn (ADMIN)
  */
 const updateHotel = catchAsync(async (req, res, next) => {
+  let images = req.body.images;
+  if (!images && (req.body.primaryImage || req.body.image)) {
+    images = [req.body.primaryImage || req.body.image];
+  }
+
   const updatedHotel = await HotelModel.update(req.params.id, {
     ...req.body,
+    images,
     minPrice: req.body.minPrice ?? req.body.min_price,
   });
   if (!updatedHotel) {

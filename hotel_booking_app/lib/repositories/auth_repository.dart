@@ -1,3 +1,5 @@
+import 'dart:io';
+import 'package:dio/dio.dart';
 import '../core/constants/api_endpoints.dart';
 import '../core/network/api_client.dart';
 import '../models/user_model.dart';
@@ -82,6 +84,27 @@ class AuthRepository {
     final response = await _client.put(
       ApiEndpoints.updateProfile,
       data: body,
+    );
+
+    final data = response.data['data']['user'] as Map<String, dynamic>;
+    final user = UserModel.fromJson(data);
+    await StorageService.saveUser(user);
+    return user;
+  }
+
+  /// Tải lên và cập nhật ảnh đại diện người dùng
+  Future<UserModel> uploadAvatar(File imageFile) async {
+    final fileName = imageFile.path.split(Platform.pathSeparator).last;
+    final formData = FormData.fromMap({
+      'avatar': await MultipartFile.fromFile(
+        imageFile.path,
+        filename: fileName,
+      ),
+    });
+
+    final response = await _client.put(
+      ApiEndpoints.uploadAvatar,
+      data: formData,
     );
 
     final data = response.data['data']['user'] as Map<String, dynamic>;

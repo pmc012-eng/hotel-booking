@@ -85,7 +85,13 @@ class _AdminBookingManageScreenState extends ConsumerState<AdminBookingManageScr
         title: const Text('Quản Lý Đơn Đặt Phòng'),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back_ios_new, size: 18),
-          onPressed: () => context.pop(),
+          onPressed: () {
+            if (context.canPop()) {
+              context.pop();
+            } else {
+              context.go('/admin');
+            }
+          },
         ),
         bottom: TabBar(
           controller: _tabController,

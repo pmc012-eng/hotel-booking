@@ -1,6 +1,8 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:image_picker/image_picker.dart';
 import '../../core/constants/app_colors.dart';
 import '../../core/utils/currency_formatter.dart';
 import '../../models/hotel_model.dart';
@@ -9,6 +11,7 @@ import '../../providers/hotel_provider.dart';
 import '../../widgets/admin/add_room_bottom_sheet.dart';
 import '../../widgets/common/custom_button.dart';
 import '../../widgets/common/custom_text_field.dart';
+import '../../widgets/common/image_upload_picker_box.dart';
 
 class AdminHotelManageScreen extends ConsumerStatefulWidget {
   const AdminHotelManageScreen({super.key});
@@ -27,117 +30,175 @@ class _AdminHotelManageScreenState extends ConsumerState<AdminHotelManageScreen>
     final descController = TextEditingController();
     final formKey = GlobalKey<FormState>();
 
+    File? pickedHotelImage;
+    String? uploadedImageUrl;
+    bool isUploadingImage = false;
+
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
       builder: (ctx) {
-        return Padding(
-          padding: EdgeInsets.only(bottom: MediaQuery.of(ctx).viewInsets.bottom),
-          child: Container(
-            padding: const EdgeInsets.all(24),
-            decoration: const BoxDecoration(
-              color: AppColors.surface,
-              borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
-            ),
-            child: SingleChildScrollView(
-              child: Form(
-                key: formKey,
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        return StatefulBuilder(
+          builder: (modalCtx, setModalState) {
+            Future<void> handlePickImage(ImageSource source) async {
+              try {
+                final picker = ImagePicker();
+                final picked = await picker.pickImage(
+                  source: source,
+                  maxWidth: 1600,
+                  maxHeight: 1200,
+                  imageQuality: 85,
+                );
+                if (picked == null) return;
+                final file = File(picked.path);
+                setModalState(() {
+                  pickedHotelImage = file;
+                  isUploadingImage = true;
+                });
+                final url = await ref.read(adminActionProvider.notifier).uploadImage(file, type: 'hotel');
+                setModalState(() {
+                  isUploadingImage = false;
+                  if (url != null) uploadedImageUrl = url;
+                });
+              } catch (e) {
+                setModalState(() => isUploadingImage = false);
+              }
+            }
+
+            return Padding(
+              padding: EdgeInsets.only(bottom: MediaQuery.of(ctx).viewInsets.bottom),
+              child: Container(
+                padding: const EdgeInsets.all(24),
+                decoration: const BoxDecoration(
+                  color: AppColors.surface,
+                  borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+                ),
+                child: SingleChildScrollView(
+                  child: Form(
+                    key: formKey,
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Text(
-                          'Thêm Khách Sạn Mới',
-                          style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            const Text(
+                              'Thêm Khách Sạn Mới',
+                              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                            ),
+                            IconButton(
+                              icon: const Icon(Icons.close),
+                              onPressed: () => Navigator.pop(ctx),
+                            ),
+                          ],
                         ),
-                        IconButton(
-                          icon: const Icon(Icons.close),
-                          onPressed: () => Navigator.pop(ctx),
+                        const SizedBox(height: 16),
+
+                        // Khung tải ảnh khách sạn từ điện thoại
+                        ImageUploadPickerBox(
+                          label: 'Ảnh đại diện khách sạn (Từ điện thoại)',
+                          selectedFile: pickedHotelImage,
+                          imageUrl: uploadedImageUrl,
+                          isLoading: isUploadingImage,
+                          onPickImage: handlePickImage,
+                          onRemove: () {
+                            setModalState(() {
+                              pickedHotelImage = null;
+                              uploadedImageUrl = null;
+                            });
+                          },
                         ),
+                        const SizedBox(height: 16),
+
+                        CustomTextField(
+                          label: 'Tên khách sạn',
+                          controller: nameController,
+                          validator: (v) => v == null || v.trim().isEmpty ? 'Nhập tên khách sạn!' : null,
+                        ),
+                        const SizedBox(height: 12),
+                        CustomTextField(
+                          label: 'Địa chỉ',
+                          controller: addressController,
+                          validator: (v) => v == null || v.trim().isEmpty ? 'Nhập địa chỉ!' : null,
+                        ),
+                        const SizedBox(height: 12),
+                        Row(
+                          children: [
+                            Expanded(
+                              child: CustomTextField(
+                                label: 'Thành phố',
+                                controller: cityController,
+                                validator: (v) => v == null || v.trim().isEmpty ? 'Nhập thành phố!' : null,
+                              ),
+                            ),
+                            const SizedBox(width: 12),
+                            Expanded(
+                              child: CustomTextField(
+                                label: 'Số sao (1 - 5)',
+                                controller: starController,
+                                keyboardType: TextInputType.number,
+                                validator: (v) {
+                                  final star = int.tryParse(v ?? '');
+                                  if (star == null || star < 1 || star > 5) return '1 đến 5 sao';
+                                  return null;
+                                },
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 12),
+                        CustomTextField(
+                          label: 'Giá tối thiểu / đêm (VND)',
+                          controller: minPriceController,
+                          keyboardType: TextInputType.number,
+                          validator: (v) => double.tryParse(v ?? '') == null ? 'Nhập giá hợp lệ' : null,
+                        ),
+                        const SizedBox(height: 12),
+                        CustomTextField(
+                          label: 'Mô tả ngắn',
+                          controller: descController,
+                        ),
+                        const SizedBox(height: 24),
+                        CustomButton(
+                          text: 'Tạo Khách Sạn',
+                          isLoading: isUploadingImage,
+                          onPressed: () async {
+                            if (!formKey.currentState!.validate()) return;
+                            Navigator.pop(ctx);
+
+                            final hotelData = <String, dynamic>{
+                              'name': nameController.text.trim(),
+                              'address': addressController.text.trim(),
+                              'city': cityController.text.trim(),
+                              'star': int.parse(starController.text.trim()),
+                              'minPrice': double.parse(minPriceController.text.trim()),
+                              'description': descController.text.trim(),
+                            };
+
+                            if (uploadedImageUrl != null) {
+                              hotelData['images'] = [uploadedImageUrl];
+                              hotelData['primaryImage'] = uploadedImageUrl;
+                            }
+
+                            final hotel = await ref.read(adminActionProvider.notifier).createHotel(hotelData);
+
+                            if (mounted && hotel != null) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(content: Text('Đã thêm khách sạn "${hotel.name}" thành công!')),
+                              );
+                            }
+                          },
+                        ),
+                        const SizedBox(height: 16),
                       ],
                     ),
-                    const SizedBox(height: 16),
-                    CustomTextField(
-                      label: 'Tên khách sạn',
-                      controller: nameController,
-                      validator: (v) => v == null || v.trim().isEmpty ? 'Nhập tên khách sạn!' : null,
-                    ),
-                    const SizedBox(height: 12),
-                    CustomTextField(
-                      label: 'Địa chỉ',
-                      controller: addressController,
-                      validator: (v) => v == null || v.trim().isEmpty ? 'Nhập địa chỉ!' : null,
-                    ),
-                    const SizedBox(height: 12),
-                    Row(
-                      children: [
-                        Expanded(
-                          child: CustomTextField(
-                            label: 'Thành phố',
-                            controller: cityController,
-                            validator: (v) => v == null || v.trim().isEmpty ? 'Nhập thành phố!' : null,
-                          ),
-                        ),
-                        const SizedBox(width: 12),
-                        Expanded(
-                          child: CustomTextField(
-                            label: 'Số sao (1 - 5)',
-                            controller: starController,
-                            keyboardType: TextInputType.number,
-                            validator: (v) {
-                              final star = int.tryParse(v ?? '');
-                              if (star == null || star < 1 || star > 5) return '1 đến 5 sao';
-                              return null;
-                            },
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 12),
-                    CustomTextField(
-                      label: 'Giá tối thiểu / đêm (VND)',
-                      controller: minPriceController,
-                      keyboardType: TextInputType.number,
-                      validator: (v) => double.tryParse(v ?? '') == null ? 'Nhập giá hợp lệ' : null,
-                    ),
-                    const SizedBox(height: 12),
-                    CustomTextField(
-                      label: 'Mô tả ngắn',
-                      controller: descController,
-                    ),
-                    const SizedBox(height: 24),
-                    CustomButton(
-                      text: 'Tạo Khách Sạn',
-                      onPressed: () async {
-                        if (!formKey.currentState!.validate()) return;
-                        Navigator.pop(ctx);
-
-                        final hotel = await ref.read(adminActionProvider.notifier).createHotel({
-                          'name': nameController.text.trim(),
-                          'address': addressController.text.trim(),
-                          'city': cityController.text.trim(),
-                          'star': int.parse(starController.text.trim()),
-                          'minPrice': double.parse(minPriceController.text.trim()),
-                          'description': descController.text.trim(),
-                        });
-
-                        if (mounted && hotel != null) {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(content: Text('Đã thêm khách sạn "${hotel.name}" thành công!')),
-                          );
-                        }
-                      },
-                    ),
-                    const SizedBox(height: 16),
-                  ],
+                  ),
                 ),
               ),
-            ),
-          ),
+            );
+          },
         );
       },
     );
@@ -204,7 +265,13 @@ class _AdminHotelManageScreenState extends ConsumerState<AdminHotelManageScreen>
         title: const Text('Quản Lý Khách Sạn'),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back_ios_new, size: 18),
-          onPressed: () => context.pop(),
+          onPressed: () {
+            if (context.canPop()) {
+              context.pop();
+            } else {
+              context.go('/admin');
+            }
+          },
         ),
       ),
       floatingActionButton: FloatingActionButton.extended(

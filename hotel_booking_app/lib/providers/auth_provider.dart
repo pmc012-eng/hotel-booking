@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_riverpod/legacy.dart';
 import '../core/network/api_exception.dart';
@@ -118,6 +119,21 @@ class AuthNotifier extends StateNotifier<AuthState> {
       return false;
     } catch (e) {
       state = state.copyWith(isLoading: false, errorMessage: 'Cập nhật thất bại');
+      return false;
+    }
+  }
+
+  Future<bool> uploadAvatar(File imageFile) async {
+    state = state.copyWith(isLoading: true, clearError: true);
+    try {
+      final updatedUser = await _repo.uploadAvatar(imageFile);
+      state = state.copyWith(user: updatedUser, isLoading: false);
+      return true;
+    } on ApiException catch (e) {
+      state = state.copyWith(isLoading: false, errorMessage: e.message);
+      return false;
+    } catch (e) {
+      state = state.copyWith(isLoading: false, errorMessage: 'Tải lên ảnh thất bại');
       return false;
     }
   }
